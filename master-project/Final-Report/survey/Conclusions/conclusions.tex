@@ -1,0 +1,25 @@
+%\def\baselinestretch{1}
+\chapter{Conclusions}
+\ifpdf
+    \graphicspath{{Conclusions/ConclusionsFigs/PNG/}{Conclusions/ConclusionsFigs/PDF/}{Conclusions/ConclusionsFigs/}}
+\else
+    \graphicspath{{Conclusions/ConclusionsFigs/EPS/}{Conclusions/ConclusionsFigs/}}
+\fi
+
+%\def\baselinestretch{1.66}
+
+Up to now, we have know that DWDM take the bottleneck of networks from bandwidth to switching technology. OBS emerge as this requirement. OBS have many advantage with the advance of DWDM technology. It have great potential to be next generation switching technology in the core network. Since it have some special feature. Such as not require buffer, separation of transmission and control packet. 
+
+As mention above chapter, contention is very possible occurs in ideal network without congestion control. OBS have no standardize yet. Many researcher work on this challenging topic. The main research method is simulation. Overview of all previous, they have build a theory framework to solve congestion collapse for OBS. That is three steps: detect, feedback, reaction. They are different in implementation detail. All mechanism are tightly coupled with the burst assembly mechanism at the
+ingress edge router. This was decided by two reasons. The First is all intelligence resides in the edge router, which are at the same time the buffer and the processor. The second is the hurdle for congestion is lacking of communication between the nodes and the absence of global coordination between the edge routers and core routers. Hence, monitor on corn router and controller on edge router will be focus on the future work. 
+
+
+
+%%% ----------------------------------------------------------------------
+
+% ------------------------------------------------------------------------
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../thesis"
+%%% End: 

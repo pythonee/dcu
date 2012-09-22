@@ -1,0 +1,145 @@
+% This file was created with JabRef 2.6.
+% Encoding: UTF-8
+
+@ARTICLE{bottleneck,
+  author = {XIA Han-zhu and XU Chang-biao and LONG Ke-ping and Wang ji-feng},
+  title = {An active congestion control mechanism in OBS networks},
+  journal = {Chongqing University of Posts and Telecommunications},
+  year = {Apr. 2005},
+  volume = {Vol. 17 No. 2},
+  owner = {pythonee},
+  timestamp = {2011.04.18}
+}
+
+@ARTICLE{contentionavoid,
+  author = {ABDELILAH MAACH, GREGOR V. BOCHMAN and HUSSEIN MOUFTAH},
+  title = {Congestion Control and Contention Elimination in Optical Burst Switching},
+  journal = {Telecommunication Systems},
+  year = {2004},
+  volume = {27:2-4},
+  pages = {115-131},
+  owner = {pythonee},
+  timestamp = {2011.04.26}
+}
+
+@ARTICLE{mems,
+  author = {David J. Bishop and C. Randy Giles and Gary P. Austin},
+  title = {The Lucent LambdaRouter: MEMS technology of the future here today},
+  journal = {IEEE Communications Magazine},
+  year = {March 2002},
+  volume = {40(3)},
+  pages = {75-79},
+  owner = {pythonee},
+  timestamp = {2011.04.18}
+}
+
+@ARTICLE{pablo03,
+  author = {Pablo Molinero Fer\`andez},
+  title = {Circuit switching in the internet},
+  year = {2003},
+  pages = {8},
+  owner = {pythonee},
+  timestamp = {2011.04.22}
+}
+
+@ARTICLE{fdl,
+  author = {Gauger,C},
+  title = {Dimensioning of FDL buffer for optical burst switching nodes},
+  journal = {Proceedings of Optical Network Design and Modein},
+  year = {2002},
+  pages = {117-132},
+  owner = {pythonee},
+  timestamp = {2011.04.19}
+}
+
+@ARTICLE{waveguides,
+  author = {Martin Hoffmann and Peter Kopka and Edgar Voges},
+  title = {Low-loss fiber-matched low-temperature PECVD waveguides with small-core
+	dimensions for optical communication systems},
+  journal = {IEEE Photonic Technology Letters},
+  year = {1997},
+  volume = {9(9)},
+  pages = {1238-1240},
+  owner = {pythonee},
+  timestamp = {2011.04.18}
+}
+
+@ARTICLE{adaptive,
+  author = {Burak Kantarci and Sema Oktug},
+  title = {ADAPTIVE THRESHOLD BASED BURST ASSEMBLY IN OBS NETWORKS},
+  journal = {IEEE CCECE/CCGEI},
+  year = {2006},
+  owner = {pythonee},
+  timestamp = {2011.04.27}
+}
+
+@ARTICLE{micromirrors,
+  author = {U. Krishnamoorthy and K. Li and K. Yu and D. Lee and J.P. Heritage
+	and O. Solgaard},
+  title = {Dual mode micromirrors for optical phased array applications},
+  journal = {Sensors and Actuators: A. Physical},
+  year = {May 2002},
+  volume = {97-98C},
+  pages = {22-26},
+  owner = {pythonee},
+  timestamp = {2011.04.18}
+}
+
+@ARTICLE{peakload,
+  author = {Lae Young KIM, SuKyyoung LEE and JooSeok SONG},
+  title = {Peak Load-Based Congestion Control Scheme in Optical Burst SWitching
+	Networks},
+  journal = {Institute of Electronics, Information and Communication Engineers},
+  year = {2006},
+  volume = {VOL.E89-B},
+  pages = {4},
+  owner = {pythonee},
+  timestamp = {2011.04.26}
+}
+
+@ARTICLE{optm,
+  author = {Prucnal, Paul and I. Glesk},
+  title = {250 Gb/s self-clocked Optical TDM with a Polarization Multiplexed
+	Clock},
+  journal = {Fiber and Integrated Optics},
+  year = {1995},
+  owner = {pythonee},
+  timestamp = {2011.04.19}
+}
+
+@ARTICLE{wavelenghtconv,
+  author = {Qin, X.,Yang, Y},
+  title = {Noblocking WDM switching networks with full and limited wavelength
+	conversion capability},
+  journal = {Proceedings of IEEE ICC},
+  year = {2002},
+  volume = {vol. 5},
+  pages = {2032-2041},
+  owner = {pythonee},
+  timestamp = {2011.04.19}
+}
+
+@ARTICLE{longterm,
+  author = {Myungsik Yoo and Junho Hwang},
+  title = {Long-term estimation-based burst control algorithm in OBS networks},
+  journal = {Photon Netw Commun},
+  year = {2009},
+  volume = {17},
+  pages = {292-298},
+  owner = {pythonee},
+  timestamp = {2011.04.26}
+}
+
+@ARTICLE{deflection,
+  author = {Zalesky,A. and Vu, H.L., Zukerman, M., Rosberg, Z. Wong E.W.M},
+  title = {Evaluation of limited wavelength conversion and deflection routing
+	as methods to reduce blocking probability in optical burst switched
+	networks},
+  journal = {Proceedings of IEEE ICC},
+  year = {2004},
+  volume = {vol. 3},
+  pages = {1543-1547},
+  owner = {pythonee},
+  timestamp = {2011.04.19}
+}
+

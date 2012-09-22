@@ -1,0 +1,45 @@
+%%% Thesis Introduction --------------------------------------------------
+\chapter{Introduction}
+\ifpdf
+    \graphicspath{{Introduction/IntroductionFigs/PNG/}{Introduction/IntroductionFigs/PDF/}{Introduction/IntroductionFigs/}}
+\else
+    \graphicspath{{Introduction/IntroductionFigs/EPS/}{Introduction/IntroductionFigs/}}
+\fi
+
+%The Internet has had phenomenal success in the past 20 years, growing from a small research network to a global network that we use in a daily basis. The Internet is logically composed of end hosts interconnected by links and routers. When a host wants to communicate with other hosts, it uses the Internet Protocol (IP) to place information in packets, which are then sent to the nearest router. The router stores, then forwards, packets to the next hop, and through hop-by-hop routing, packets find their way to the desired destination. In other words, end hosts communicate through packet switching. With this communication technique, link bandwidth is shared among all information flows, and so these flows are statistically multiplexed on the link. The resulting service is best effort, in the sense that there are no deterministic guarantees.
+%
+%Optical burst switching (OBS) is a proposed new communications technology that seeks to expand the use of optical technology in switching systems. Optical technology has been used for a long time to carry information in fibers; however, the rapid growth of the Internet and the progress being made in Dense Wavelength Division Multiplexing (DWDM) creates an opportunity for more extensive use of optical resources in swithching and routing in the second generation of optical network systems. DWDM
+%is a fiber-optic transmission technique. It is a multiplexing of many different wavelength signals onto a single fiber to obtain a set of parallel optical channels. Each channel uses a specific wavelength or color. This allows efficient fiber bandwidth and hence, limits the use of additional fibers. 
+%
+%\begin{figure}[!htbp]
+%    \label{fig:trends}
+%    \begin{center}
+%        \leavevmode
+%        \ifpdf
+%        \resizebox{120mm}{!}{\includegraphics{pmf_thesis_img3}}
+%        \else
+%        \includegraphics[bb = 92 86 545 742, height=6in]{pmf_thesis_img3}
+%        \fi
+%        \caption[Trends of traffic demand]{Trends of traffic demand and the underlying technologies in the Internet [1998 = 100\%]. Trends for Silicon processing and router forwarding capacity are kept at the same value as today, despite talks of a slow down after 2004\cite{pablo03}}
+%    \end{center}
+%\end{figure}
+%
+%If the Internet is based on packet switching, why would I want to use optical burst switching? The answer is simple. There is a mismatch between the evolution rates of traffic and capacity of the Internet, but optical burst switching can help bridge the gap between demand and supply. recent advances in MEMS \cite{mems}, integrated waveguides \cite{waveguides}, optical gratings \cite{micromirrors}, tunable lasers, and holography have made possible very high capacity switch fabrics. And because of DWDM, single fibers have been able to
+%transmit data at speeds up to 400Gb/s. Hence exchange rate will become the bottleneck of network rates \cite{bottleneck}. Optical burst switch network structure proposed in order to exploit the enormous bandwidth of DWDM technology, and overcome the bottleneck of the electron exchange rate.
+%
+%The novel idea of OBS networks is to keep the information in the optical domain as long as possible. This allows the system to overcome the limitations imposed by the electronic processing and opto-electronic conversion, leading to high speed data forwarding and high transparency. However, many challenging issues have to be solved in order to pave the way for an effective implementation of OBS. Contention, which may occur when two or more bursts compete for the same wavelength on
+%the same link, is a critical issue. Many contention resolution methods have been proposed in the literature but many of them are very vulnerable to network load and may suffer severe loss in case of heavy traffic. So we need to develop a new congestion control scheme to prevent congestion collapse and keep OBS network throughput high.
+%
+\input{Introduction/section_1.tex}
+\input{Introduction/section_2.tex}
+\input{Introduction/section_3.tex}
+\input{Introduction/section_4.tex}
+
+
+%%% ----------------------------------------------------------------------
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "../thesis"
+%%% End: 

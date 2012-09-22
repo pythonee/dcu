@@ -1,0 +1,44 @@
+\section{Introduction}
+
+\IEEEPARstart{O}{BS} has been proposed as strong candidate for the next generation
+optical internet. OBS can achieve high statistical multiplexing and
+provide flexible and dynamic bandwidth allocation required to support
+highly dynamic and burst traffic\cite{ref:obs}.  In OBS networks, all input data
+are assembled into a burst according to their destination in edge side, referred to
+as data burstsd(DB), Shortly before the burst transmission begin, a
+burst header cell(BHC) is sent on the control channel that is
+processing on electric domain. The control packet BHC which contains 
+information such as the destination address, the length of burst, the
+number of hops it pass through and the burst offset time. BHC channel
+is separated from the data burst channel. It take offset time to let 
+the header cell be processed at each intermediate router before the data 
+burst arrives. When all router along the path between source and destination 
+complete resource reservation. DB can go through the path within whole
+high-speed optical domain. The main different difference between an
+optical network and a conventional packet switching network are
+without optical buffer on the intermediate router. Once the network is congested,
+some or all of bursts have to be dropped since bufferless on OBS. 
+Hence, contention is inherent to the OBS technique and contention issue 
+could affect tremendously the network performance in
+terms of burst blocked rate and throughput. Recently, contention and loss
+ratio may be reduced by implementing contention resolution policies,
+such as time defection (using fiber delay line \cite{ref:fdl}), space 
+deflection (using deflection routing \cite{ref:deflect}), and wavelength 
+conversion \cite{ref:conversion}. These mechanisms can reduce burst blocked
+rate in short-term burst congestion. But if the burst congestion 
+lasts longer, the contention resolution policies can't handle any more. 
+Some or all conflict bursts must be dropped. And then there are several soft contention
+resolution policy can be applied for determining which bursts to drop.
+
+The contention resolution policies are considered as reactive
+approaches in the sense that they are invoked after contention occurs.
+But also increase the complex implementation issues. An alternative
+approach to avoid network contention and reduce burst loss is by proactively
+ attempting to prevent network from overload through traffic management. This
+paper focus on how to keep the rate of burst blocked rate of a network 
+around a controllable level. An ideal congestion control mechanism should
+achieve some objectives: enhance the throughput, reduce the average end-to-end burst delay, reduce data burst blocked rate, fair to all users and react timely. Basically, the congestion problem is due to the lack of information at the nodes and the absence of global coordination between the edge nodes and core nodes. As we know, in OBS, all intelligence resides in the edge nodes, which provides the buffer and the processor at the same time on the network. To solve these problems and consider about the feature of OBS, I develop a detect-feedback-react loop congestion control mechanism. 
+
+The rest of the article is organized as follows.Section 2 stats the background of problem 
+and related studies. The proposed congestion control scheme is illustrated in Section 3. 
+Section 4 presents and analysis the computer experiment results. Finally, I concludes this paper in Section 5.

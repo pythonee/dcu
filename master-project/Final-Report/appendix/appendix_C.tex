@@ -1,0 +1,27 @@
+%input macros (i.e. write your own macros file called MacroFile1.tex)
+    %\include{Macros/MacroFile1}
+
+
+\documentclass[oneside,12pt]{CUEDthesisPSnPDF}
+\begin{document}
+
+\renewcommand{\thepage}{\mbox{A-\arabic{page}}}
+\renewcommand\thechapter{\Alph{chapter}}
+\renewcommand{\chaptername}{Appendix}
+\renewcommand{\thefigure}{A-\arabic{chapter}.\arabic{figure}}
+\renewcommand{\thetable}{A-\arabic{chapter}.\arabic{table}}
+\setcounter{page}{22}
+\addtocounter{chapter}{2}
+
+\chapter{Process model of monitor}
+\thispagestyle{fancy}
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=2.6in]{fig/monitor}
+\caption{process model of monitor}
+\label{fig:monitor}
+\end{figure}
+
+The monitor of core node detect each output-port congestion status and broadcast feedback control packet to all associate edge node periodically. As shown in figure \ref{fig:monitor}, it track the number of blocked burst and the number of arrival and departed burst. And there a self interruption as timer.  
+
+\end{document}

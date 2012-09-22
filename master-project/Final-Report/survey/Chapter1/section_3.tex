@@ -1,0 +1,7 @@
+\section{Issues May Encounter}
+
+Note that in OBS networks, intelligent functions such as burst assembly, burst scheduling and generation of control packets are implemented at edge nodes while core nodes perform less complex functions such as processing control packets, resource reservation and switching bursts. However, many existing works have proposed to implementation some simple extra functions at the core node such as load calculation, burst segmentation and priority-based burst dropping for service differentiation.
+It is hard to predict whether it is necessary to add extra function to core node in this study. If yes, is it complicate so that the core node is reject to add it.
+
+
+To meet QoS requirement such as bounded delay or guaranteed delivery is part of new scheme objective. But it is incompatible to achieve guaranteed delivery rate and congestion control by reduce transmission rate at the same time. It is clear that even in ideal networks, where the switches use number of buffers and can perform wavelength conversion, congestion collapse still occurs when the load gets higher. On this moment, it seem impossible to resolve this contradiction.    

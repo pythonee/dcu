@@ -1,0 +1,24 @@
+\section{About congestion control}
+To understand what is congestion control. The first question what causes congestion must be answer. Fortunately, the answer is simple, congestion occurs when the total traffic load is greater than network bottleneck capacity. Especially, OBS take one-way reservation to avoid the long end-to-end setup times and without buffer on intermediate router. Once contention occurs, some or all of data burst have to be dropped. Hence, contention is inherent to the OBS technique and
+contention issue could affect tremendously the network performance in terms of burst blocked rate and throughput.
+
+General speaking, the contention problem is due to the lack of communication between the nodes and the absence of global coordination between the edge routers and core routers. Congestion issue will lead to a large waste of resource due to drop of bursts on last one router before destination since fail to compete fail. Even worse, the network is statistical multiplexing, many burst may share a link, that lead to load is not balance over all core routers. Some core router may
+overload, the others may be idle.  
+
+There are two approaches to handle burst contention problem: bursts contention resolution and burst congestion control. The burst contention resolution approaches should have capacity to store burst with fiber delay lines (FDLs) \cite{fdl}, deflection routing \cite{deflection}, and wavelength conversion \cite{wavelenghtconv}. These approaches can reduce burst loss rate by absorbing short-term burst congestion. But if the burst congestion lasts long, all of above
+approaches can't reduce burst loss rate anymore. Even worse, they may introduce longer end-to-end delay and enhance congestion impact. 
+
+The burst congestion control mechanism handle the burst congestion by controlling the data burst transmission rate at the optical network edge. There are two paradigm to limit the source flow rate, refer as open-loop and closed-loop congestion control. The main different between these two mechanism is that closed-loop is dynamic adaptive system with feedback message. Open-loop is a per-define system without dynamic adjust stage.  There are two jointly operating mechanisms, namely a
+burst congestion detection and a burst control algorithm in closed-loop network\cite{longterm}. Thus, in the feedback-based network it is required for the core router to work out 3W1H (what,where,when,how) question. What information should feedback to network edge router? Which router should monitor the network information and report to edge router? When this statistic result can detect the congestion and tell the edge router to reduce transmission
+rate? On the other side the core router should tell when the edge router increase transmission rate to keep network throughput high? The last question is how to detect and predict the network congestion? How to guarantee fairness and self-organizing? 
+
+%However, there are some misunderstandings about the causes and solutions of congestion control.
+%
+%\begin{enumerate}
+%    \item Congestion is caused by the shortage of buffer space. The problem will be solved when the cost of memory becomes cheap enough to allow very large memory. Larger buffers are useful only for very short term congestions and will cause undesirable long delays. The long queue and long delay introduced by large memory is undesirable for many applications.
+%
+%    \item Congestion is caused by slow links. The problem will be solved when high-speed links become available. It is not always the case; sometimes increases in link bandwidth can aggravate the congestion problem because higher speed links may make the network more unbalanced. If two sources begin to send to destination 1 at their peak rate, congestion will occur at the switch. Higher speed links can make the congestion condition in the switch even worse.
+%
+%    \item Congestion is caused by slow processors. The problem will be solved when processor speed is improved. This statement can be explained to be wrong similarly to the second one. Faster processors will transmit more data per unit time. If several nodes begin to transmit to one destination simultaneously at their peak rate, the target will soon be overwhelmed. Congestion is a dynamic problem, and any static solutions are therefore not sufficient to solve the problem.
+%        All the issues presented above: buffer shortage, slow link, slow processor are symptoms, not the causes of congestion. Proper congestion management mechanisms are more important than ever.
+%\end{enumerate}

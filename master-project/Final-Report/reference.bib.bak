@@ -1,0 +1,105 @@
+% This file was created with JabRef 2.6.
+% Encoding: UTF-8
+
+@ARTICLE{ref:obs,
+  author = {C,Qiao and M,Yoo},
+  title = {Optical burst switching -- a new paradigm for an optical internet},
+  journal = {J.High Speed Netw},
+  year = {1999},
+  volume = {8(1)},
+  pages = {69-84},
+  owner = {pythonee},
+  timestamp = {2011.08.16}
+}
+
+@CONFERENCE{ref:feedback-based,
+  author = {Farahmand,Farid and Zhang,Qiong and P. Jue,Jason},
+  title = {A Feedback-Based Contention Avoidance Mechanism for Optical Burst
+	Switching Networks},
+  owner = {pythonee},
+  timestamp = {2011.08.16}
+}
+
+@ARTICLE{ref:monitor,
+  author = {Wang Fei},
+  title = {The process model of monitor},
+  journal = {MEng Final Report},
+  year = {August, 2011},
+  pages = {Appendix A},
+  owner = {pythonee},
+  timestamp = {2011.08.16}
+}
+
+@ARTICLE{ref:fdl,
+  author = {Gauger,C},
+  title = {Optimized combination of converter pools and FDL buffers for contention
+	resolution in optical burst switching},
+  journal = {Photonic Network},
+  year = {2004},
+  volume = {8(2)},
+  pages = {139-148},
+  owner = {pythonee},
+  timestamp = {2011.08.16}
+}
+
+@CONFERENCE{ref:peak-rate,
+  author = {KIM,Lae Young and LEE, SuKyoung and SONG,JooSeok},
+  title = {Peak Load-Based Congestion Control Scheme in Optical Burst Switching
+	Networks},
+  year = {2006},
+  owner = {pythonee},
+  timestamp = {2011.08.16}
+}
+
+@ARTICLE{ref:real-network,
+  author = {Sungchang Kim and Biswanath Mukherjee and Minho Kang},
+  title = {Integrated Congestion-Control Mechanism in Optical Burst Switching
+	Networks},
+  journal = {IEEE Globecom},
+  year = {2005},
+  owner = {pythonee},
+  timestamp = {2011.08.16}
+}
+
+@ARTICLE{ref:deflect,
+  author = {Lee, S and Sriram, K and Kim,H and Song, J},
+  title = {Contention-based limited deflection routing protocol in optical burst-switched
+	networks},
+  journal = {IEEE J. Sel. Areas},
+  year = {2005},
+  volume = {23(8)},
+  pages = {1591-1611},
+  owner = {pythonee},
+  timestamp = {2011.08.16}
+}
+
+@ARTICLE{ref:conversion,
+  author = {Qin, X and Yang, Y},
+  title = {Nonblocking WDM switching networks with full and limited wavelength
+	conversion},
+  journal = {IEEE T. Commun},
+  year = {2002},
+  volume = {50(12)},
+  pages = {2032-2041},
+  owner = {pythonee},
+  timestamp = {2011.08.16}
+}
+
+@ARTICLE{ref:leaky-bucket,
+  author = {Fei Wang},
+  title = {The process model of leaky bucket},
+  journal = {MEng Final Report},
+  year = {August 2011},
+  pages = {Appendix A},
+  owner = {pythonee},
+  timestamp = {2011.08.16}
+}
+
+@CONFERENCE{ref:long-term-detect,
+  author = {Yoo,Myungsik and Hwang,Junho},
+  title = {Long-term estimation-based burst control algorithm in OBS networks},
+  year = {2009},
+  owner = {pythonee},
+  timestamp = {2011.08.16}
+}
+

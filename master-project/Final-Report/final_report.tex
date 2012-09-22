@@ -1,0 +1,78 @@
+\documentclass[a4paper,journal]{IEEEtran}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{verbatim}
+%\usepackage{listings}
+%\usepackage{array}
+\usepackage{pdfpages}
+\DeclareGraphicsExtensions{.pdf,.jpg}
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+%\makeatletter
+%\newcommand{\figcaption}{\def\@captype{figure}\caption}
+%\newcommand{\tabcaption}{\def\@captype{table}\caption}
+%\makeatother
+
+
+\begin{document}
+{\onecolumn \tableofcontents}
+\thispagestyle{empty}
+
+
+\twocolumn
+\title{Congestion Control Mechanisms for Optical Burst Switched Networks}
+
+\author{Fei Wang}
+
+\markboth{MEng in Telecommunications Eng,August~2011}%
+{Congestion Control Mechanisms for Optical Burst Switched Networks}
+
+\maketitle
+
+
+\input{abstract.tex}
+
+\IEEEpeerreviewmaketitle
+
+
+\input{introduction.tex}
+
+\input{related_work.tex}
+
+\input{scheme.tex}
+
+\input{simulation.tex}
+
+\input{conclusion.tex}
+
+% Can use something like this to put references on a page
+% by themselves when using endfloat and the captionsoff option.
+\ifCLASSOPTIONcaptionsoff
+  \newpage
+\fi
+
+\bibliographystyle{IEEEtran}
+\bibliography{reference}
+
+\cleardoublepage
+\setcounter{page}{2}
+\renewcommand{\thepage}{\mbox{A-\arabic{page}}}
+
+\addcontentsline{toc}{section}{Appendix}
+\addcontentsline{toc}{subsection}{Appendix A -- A Survey of Congestion Control Mechanisms for Optical Burst Switched Networks}
+\includepdfmerge{survey_cover.pdf,-}
+\includepdfmerge{survey/survey.pdf,3-}
+
+\cleardoublepage
+\setcounter{page}{21}
+\addcontentsline{toc}{subsection}{Appendix B -- Process model of leaky bucket}
+\includepdfmerge{appendix/appendix_B.pdf,-}
+\addcontentsline{toc}{subsection}{Appendix C -- Process model of monitor}
+\includepdfmerge{appendix/appendix_C.pdf,-}
+
+
+\end{document}
+
+
