@@ -1,0 +1,24 @@
+send 4527 packets,receive 4112 packets,loss 415 packets,loss rate: 0.091672
+recv_pkt: 4112, average delay: 0.294720
+average throughput: 386.853564
+throughput standard deviation: 38.622652
+average delay: 0.294720
+delay standard deviation: 0.082407
+average PSNR: 50.008966
+PSNR standard deviation: 35.486217
+send 3162 packets,receive 2942 packets,loss 220 packets,loss rate: 0.069576
+recv_pkt: 2942, average delay: 0.289685
+average throughput: 213.819286
+throughput standard deviation: 37.836837
+average delay: 0.289685
+delay standard deviation: 0.058201
+average PSNR: 24.515402
+PSNR standard deviation: 17.304995
+send 6859 packets,receive 6185 packets,loss 674 packets,loss rate: 0.098265
+recv_pkt: 6185, average delay: 0.007116
+average throughput: 500.481368
+throughput standard deviation: 7.467917
+average delay: 0.007116
+delay standard deviation: 0.003116
+average PSNR: 99.956736
+PSNR standard deviation: 2.475934

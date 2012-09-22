@@ -1,0 +1,24 @@
+\documentclass[a4paper]{article}
+
+\input{preamble.tex}
+
+\begin{document}
+\pagestyle{empty}
+\includepdf{cover.pdf}
+\newpage
+\tableofcontents
+\clearpage
+\pagestyle{plain}
+\section{Part A -- Static Model}
+\input{scenario_1.tex}
+
+\newpage
+\section{Part B -- Movable Model}
+\input{scenario_2.tex}
+
+\newpage
+\section{Appendix}
+\input{appendix.tex}
+
+
+\end{document}

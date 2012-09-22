@@ -1,0 +1,35 @@
+\subsection{TCL simulation script files}
+\lstinputlisting[caption=802.11b QOAS Main TCL script]{../main.tcl}
+%\lstinputlisting[caption=Adaptive rate MM application config TCL script]{../ad.tcl}
+%\lstinputlisting[caption=Highest rate MM application config TCL script]{../hi.tcl}
+%\lstinputlisting[caption=Lowest rate MM application config TCL script]{../lo.tcl}
+
+\newpage
+\subsection{AWK analysis script file}
+\lstinputlisting[caption={Analysis throughput,delay,delay jitter,loss rate}]{../awk/analysis.awk}
+
+\newpage
+\subsection{Build script file}
+\lstinputlisting[caption={Simulation,Draw datagram and Build report document}]{../run.sh}
+\subsection{Readme}
+{\bf how to run this simulation} \\
+Assume you have install all follow software:
+\begin{enumerate}
+    \item \verb|ns-2.34|
+    \item \verb|gnuplot|
+    \item \verb|texlive 2010 suit|
+\end{enumerate}
+{\bf Note:} you should patch the \verb|qoas.patch| and \verb|qoas_chang.patch| to \verb|ns-2.34|. These two patch reside in \verb|patch| directory.
+
+{\bf step to build} \\
+firstly, change work directory to current directory
+
+\begin{enumerate}
+    \item run \verb|sh run.sh| to get the simulation result.  
+    \item cd to \verb|doc| directory, type the command: \verb|cd ./doc|
+    \item and then run \verb|sh doc.sh| to build the report document base on the result.
+\end{enumerate}
+
+If you don't want to re-build this report document. Ignore step \verb|2| and \verb|3|. To view the output result. You can open the result directory. All the result gathering here. After run the main script \verb|run.sh|. You can change directory to \verb|trace| to view the \verb|trace| file and \verb|nam| file.
+
+All analysis \verb|awk| files put into the \verb|awk| directory.

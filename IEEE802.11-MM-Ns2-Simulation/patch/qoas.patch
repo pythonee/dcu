@@ -1,0 +1,691 @@
+diff -Naur ns-allinone-2.34-original/ns-2.34/apps/app.h ns-allinone-2.34/ns-2.34/apps/app.h
+--- ns-allinone-2.34-original/ns-2.34/apps/app.h	2009-06-14 18:35:44.000000000 +0100
++++ ns-allinone-2.34/ns-2.34/apps/app.h	2011-02-17 22:49:40.000000000 +0000
+@@ -50,6 +50,7 @@
+ 	Application();
+ 	virtual void send(int nbytes);
+ 	virtual void recv(int nbytes);
++	virtual void recv_msg(int nbytes, const char *msg = 0) {}
+ 	virtual void resume();
+ 
+ protected:
+diff -Naur ns-allinone-2.34-original/ns-2.34/common/agent.h ns-allinone-2.34/ns-2.34/common/agent.h
+--- ns-allinone-2.34-original/ns-2.34/common/agent.h	2009-06-14 18:35:45.000000000 +0100
++++ ns-allinone-2.34/ns-2.34/common/agent.h	2011-02-17 22:45:34.000000000 +0000
+@@ -87,6 +87,8 @@
+ 	virtual void sendto(int sz, AppData*, const char* flags,
+ 			    ns_addr_t dst);
+ 
++	virtual int supportMM() { return 0;}
++	virtual void enableMM() { }
+ 	virtual void sendmsg(int nbytes, const char *flags = 0);
+ 	virtual void send(int nbytes) { sendmsg(nbytes); }
+ 	virtual void sendto(int nbytes, const char* flags, nsaddr_t dst);
+diff -Naur ns-allinone-2.34-original/ns-2.34/common/packet.h ns-allinone-2.34/ns-2.34/common/packet.h
+--- ns-allinone-2.34-original/ns-2.34/common/packet.h	2009-06-14 18:35:44.000000000 +0100
++++ ns-allinone-2.34/ns-2.34/common/packet.h	2011-02-17 22:32:08.000000000 +0000
+@@ -182,8 +182,9 @@
+ 	// AOMDV packet
+ static const packet_t PT_AOMDV = 61;
+ 
++static const packet_t PT_Multimedia = 62;
+         // insert new packet types here
+-static packet_t       PT_NTYPE = 62; // This MUST be the LAST one
++static packet_t       PT_NTYPE = 63; // This MUST be the LAST one
+ 
+ enum packetClass
+ {
+@@ -383,6 +384,8 @@
+ 		// AOMDV patch
+ 		name_[PT_AOMDV]= "AOMDV";
+ 
++		name_[PT_Multimedia] = "Multimedia";
++		
+ 		name_[PT_NTYPE]= "undefined";
+ 	}
+ 	static int addPacket(char *name);
+diff -Naur ns-allinone-2.34-original/ns-2.34/Makefile.in ns-allinone-2.34/ns-2.34/Makefile.in
+--- ns-allinone-2.34-original/ns-2.34/Makefile.in	2009-06-14 18:35:44.000000000 +0100
++++ ns-allinone-2.34/ns-2.34/Makefile.in	2011-02-20 18:29:04.888210526 +0000
+@@ -274,6 +274,9 @@
+ 	dsr/simplecache.o dsr/sr_forwarder.o \
+ 	aodv/aodv_logs.o aodv/aodv.o \
+ 	aodv/aodv_rtable.o aodv/aodv_rqueue.o \
++	QOAS/udp-mm.o \
++	QOAS/qoas-server.o \
++	QOAS/qoas-client.o \
+ 	aomdv/aomdv_logs.o aomdv/aomdv.o \
+ 	aomdv/aomdv_rtable.o aomdv/aomdv_rqueue.o \
+ 	common/ns-process.o \
+diff -Naur ns-allinone-2.34-original/ns-2.34/QOAS/qoas-client.cc ns-allinone-2.34/ns-2.34/QOAS/qoas-client.cc
+--- ns-allinone-2.34-original/ns-2.34/QOAS/qoas-client.cc	1970-01-01 01:00:00.000000000 +0100
++++ ns-allinone-2.34/ns-2.34/QOAS/qoas-client.cc	2011-02-18 15:35:40.000000000 +0000
+@@ -0,0 +1,154 @@
++#include "random.h"
++#include "qoas-client.h"
++
++//OTcl linkage
++static class QOASClientClass : public TclClass {
++ public:
++  QOASClientClass() : TclClass("Application/QOASClient") {}
++  TclObject* create(int, const char*const*) {
++    return (new QOASClient);
++  }
++} class_qoas_client;
++
++// Send ACK message
++void AckTimer::expire(Event*)
++{
++  t_->send_ack();
++}
++
++//Constructor
++QOASClient::QOASClient() : running_(0), ack_timer_(this)
++{
++  bind_bw("rate0_", &rate[0]);
++  bind_bw("rate1_", &rate[1]);
++  bind_bw("rate2_", &rate[2]);
++  bind_bw("rate3_", &rate[3]);
++  bind_bw("rate4_", &rate[4]);
++  bind("pktsize_", &pktsize_);
++  bind_bool("random_", &random_);
++}
++
++
++// OTcl command interpreter
++int QOASClient::command(int argc, const char*const* argv)
++{
++  Tcl& tcl = Tcl::instance();
++
++  if (argc == 3) {
++    if (strcmp(argv[1], "attach-agent") == 0) {
++      agent_ = (Agent*) TclObject::lookup(argv[2]);
++      if (agent_ == 0) {
++	tcl.resultf("no such agent %s", argv[2]);
++	return(TCL_ERROR);
++      }
++
++      // Make sure the underlying agent support MM
++      if(agent_->supportMM()) {
++	agent_->enableMM();
++      }
++      else {
++	tcl.resultf("agent \"%s\" does not support MM Application", argv[2]);
++	return(TCL_ERROR);
++      }
++      
++      agent_->attachApp(this);
++      return(TCL_OK);
++    }
++  }
++  return (Application::command(argc, argv));
++}
++
++// Receive message from UDP agent
++void QOASClient::recv_msg(int nbytes, const char *msg)
++{
++  if(msg){
++    hdr_mm* mh_buf = (hdr_mm*) msg;
++
++    if(mh_buf->ack != 1){
++      // If received packet is data packet
++      monitor_recv_pkts(mh_buf);
++      if(mh_buf->seq == 0) send_ack();
++    }
++  }
++}
++
++void QOASClient::monitor_recv_pkts(const hdr_mm *mh_buf)
++{ 
++  double local_time = Scheduler::instance().clock();
++
++  // Calculate RTT
++  if(mh_buf->seq == 0) {
++    init_recv_pkt_monitoring();
++    p_monitor.rtt = 2*(local_time - mh_buf->time);
++  }
++  else
++    p_monitor.rtt = 0.9 * p_monitor.rtt + 0.1 * 2*(local_time - mh_buf->time); 
++
++  // Count received packets and packet loss
++  p_monitor.recv_pkts ++;
++  p_monitor.lost_pkts += (mh_buf->seq - p_monitor.last_seq - 1);
++  p_monitor.last_seq = mh_buf->seq;
++}
++
++void QOASClient::init_recv_pkt_monitoring()
++{
++  p_monitor.last_seq = -1;
++  p_monitor.last_rate = 0; 
++  p_monitor.lost_pkts = 0;
++  p_monitor.recv_pkts = 0;
++}
++
++
++void QOASClient::send_ack(void)
++{
++  double local_time = Scheduler::instance().clock();
++
++  adjust_rate();
++
++  // send ack message
++  hdr_mm ack_buf;
++  ack_buf.ack = 1;  // this packet is ack packet
++  ack_buf.time = local_time;
++  ack_buf.nbytes = 40;  // Ack packet size is 40 Bytes
++  ack_buf.scale = p_monitor.last_rate;
++  agent_->sendmsg(ack_buf.nbytes, (char*) &ack_buf);
++
++  // schedul next ACK time
++  ack_timer_.resched(p_monitor.rtt);
++  
++  time_interval = local_time;
++}
++
++
++void QOASClient::adjust_rate(void)
++{ 
++  if(p_monitor.recv_pkts > 0) 
++  {
++    
++    time_interval = Scheduler::instance().clock() - time_interval;
++    
++    double expected_thr = (((double)(p_monitor.recv_pkts) + (double)(p_monitor.lost_pkts)) * (double)pktsize_ * 8 ) / (time_interval*1000000);
++    double received_thr = (((double)(p_monitor.recv_pkts)) * (double)pktsize_ * 8 ) / (time_interval*1000000);
++    
++    double PSNR = 100; // maximum PSNR
++    if (expected_thr > received_thr) //if there is loss PSNR will be less than 100
++      PSNR = 20 * log ( expected_thr / sqrt( (expected_thr - received_thr) * (expected_thr - received_thr) ) );
++    
++    double quality_metric = 0.5 * ( received_thr / expected_thr ) + 0.5 * (PSNR / 100.00);
++    
++    if(quality_metric < 0.5)
++    {
++      p_monitor.last_rate = (int)(p_monitor.last_rate / 2);
++    }  
++    else 
++    {
++      p_monitor.last_rate++;
++      if(p_monitor.last_rate > 4) p_monitor.last_rate = 4;
++    }
++    
++    printf("ADJUST SCALE: EXPECTED_THR: %.2lf RECEIVED_THR: %.2lf PSNR: %.2lf QUALITY METRIC: %.2lf DECIDED RATE: %.2lfMbps \n", expected_thr, received_thr, PSNR, quality_metric, rate[p_monitor.last_rate]/1000000);
++  }
++  
++  p_monitor.recv_pkts = 0;
++  p_monitor.lost_pkts = 0;
++}
+diff -Naur ns-allinone-2.34-original/ns-2.34/QOAS/qoas-client.h ns-allinone-2.34/ns-2.34/QOAS/qoas-client.h
+--- ns-allinone-2.34-original/ns-2.34/QOAS/qoas-client.h	1970-01-01 01:00:00.000000000 +0100
++++ ns-allinone-2.34/ns-2.34/QOAS/qoas-client.h	2011-02-18 15:49:48.000000000 +0000
+@@ -0,0 +1,53 @@
++
++#include "timer-handler.h"
++#include "packet.h"
++#include "app.h"
++#include "udp-mm.h"
++
++// This is used for packet monitoring
++struct pkt_monitor { 
++        int last_seq;   // sequence number of last received pkt
++        int last_rate;  // rate (0-4) of last acked
++        int lost_pkts;  // number of lost pkts since last ack
++        int recv_pkts;  // number of received pkts since last ack
++        double rtt;     // round trip time
++};
++
++
++class QOASClient;
++
++// Reciver uses this timer to schedule next ack packet transmission time
++class AckTimer : public TimerHandler {
++ public:
++	AckTimer(QOASClient* t) : TimerHandler(), t_(t) {}
++	inline virtual void expire(Event*);
++ protected:
++	QOASClient* t_;
++};
++
++
++// Multimedia Application Class Definition
++class QOASClient : public Application {
++ public:
++	QOASClient();
++	void send_ack(); // called by AckTimer:expire
++ protected:
++	int command(int argc, const char*const* argv);
++ private:
++	void init();
++	virtual void recv_msg(int nbytes, const char *msg = 0);
++	void adjust_rate(void);
++	void monitor_recv_pkts(const hdr_mm *mh_buf);
++	void init_recv_pkt_monitoring();
++
++	double rate[5];        // Transmission rates
++	int pktsize_;          // Application data packet size
++	int random_;           
++	int running_;          
++	pkt_monitor p_monitor;
++	AckTimer  ack_timer_;  // AckTimer
++	double time_interval;  //monitoring time interval (basicaly the time between two ACK packets)
++};
++
++
++
+diff -Naur ns-allinone-2.34-original/ns-2.34/QOAS/qoas-server.cc ns-allinone-2.34/ns-2.34/QOAS/qoas-server.cc
+--- ns-allinone-2.34-original/ns-2.34/QOAS/qoas-server.cc	1970-01-01 01:00:00.000000000 +0100
++++ ns-allinone-2.34/ns-2.34/QOAS/qoas-server.cc	2011-02-18 15:50:12.000000000 +0000
+@@ -0,0 +1,134 @@
++#include "random.h"
++#include "qoas-server.h"
++
++
++// QOAS OTcl linkage class
++static class QOASServerClass : public TclClass {
++ public:
++  QOASServerClass() : TclClass("Application/QOASServer") {}
++  TclObject* create(int, const char*const*) {
++    return (new QOASServer);
++  }
++} class_qoas_server;
++
++
++// When snd_timer_ expires call QOAS:send_mm_pkt()
++void SendTimer::expire(Event*)
++{
++  t_->send_pkt();
++}
++
++// Constructor (also initialize instances of timers)
++QOASServer::QOASServer() : running_(0), snd_timer_(this)
++{
++  bind_bw("rate0_", &rate[0]);
++  bind_bw("rate1_", &rate[1]);
++  bind_bw("rate2_", &rate[2]);
++  bind_bw("rate3_", &rate[3]);
++  bind_bw("rate4_", &rate[4]);
++  bind("pktsize_", &pktsize_);
++  bind_bool("random_", &random_);
++}
++
++
++// OTcl command interpreter
++int QOASServer::command(int argc, const char*const* argv)
++{
++  Tcl& tcl = Tcl::instance();
++
++  if (argc == 3) {
++    if (strcmp(argv[1], "attach-agent") == 0) {
++      agent_ = (Agent*) TclObject::lookup(argv[2]);
++      if (agent_ == 0) {
++	tcl.resultf("no such agent %s", argv[2]);
++	return(TCL_ERROR);
++      }
++
++      // Make sure the underlying agent support MM
++      if(agent_->supportMM()) {
++	agent_->enableMM();
++      }
++      else {
++	tcl.resultf("agent \"%s\" does not support QOAS Application", argv[2]);
++	return(TCL_ERROR);
++      }
++      
++      agent_->attachApp(this);
++      return(TCL_OK);
++    }
++  }
++  return (Application::command(argc, argv));
++}
++
++void QOASServer::init()
++{
++  rate_ = 0; // Start at minimum rate
++  seq_ = 0;   // MM sequence number (start from 0)
++  interval_ = (double)(pktsize_ << 3)/(double)rate[rate_];
++}
++
++void QOASServer::start()
++{
++  init();
++  running_ = 1;
++  send_pkt();
++}
++
++void QOASServer::stop()
++{
++  running_ = 0;
++}
++
++
++// Send application data packet
++void QOASServer::send_pkt()
++{
++  hdr_mm mh_buf;
++
++  if (running_) {
++    // the below info is passed to UDPmm agent, which will write it to MM header after packet creation.
++    mh_buf.ack = 0;            // This is a data packet
++    mh_buf.seq = seq_++;         // Sequece number
++    mh_buf.nbytes = pktsize_;  // Size of data packet (NOT UDP packet size)
++    mh_buf.time = Scheduler::instance().clock(); // Current time
++    mh_buf.scale = rate_;                       // Current rate
++    agent_->sendmsg(pktsize_, (char*) &mh_buf);  // send to UDP
++
++    // Reschedule the send_pkt timer for the next packet
++    double next_time_ = next_snd_time();
++    if(next_time_ > 0) snd_timer_.resched(next_time_);
++  }
++}
++
++
++// Schedule next data packet transmission time
++double QOASServer::next_snd_time()
++{
++  // Recompute interval in case rate or size chages
++  interval_ = (double)(pktsize_ << 3)/(double)rate[rate_];
++  double next_time_ = interval_;
++  if(random_) 
++    next_time_ += interval_ * Random::uniform(-0.5, 0.5);
++  return next_time_;
++}
++
++
++// Receive message from underlying agent
++void QOASServer::recv_msg(int nbytes, const char *msg)
++{
++  if(msg) {
++    hdr_mm* mh_buf = (hdr_mm*) msg;
++
++    if(mh_buf->ack == 1) {
++      // If received packet is ACK packet
++      set_rate(mh_buf);
++    }
++  }
++}
++
++
++// Sender sets its scale to what reciver notifies
++void QOASServer::set_rate(const hdr_mm *mh_buf)
++{ 
++  rate_ = mh_buf->scale;
++}
+\ No newline at end of file
+diff -Naur ns-allinone-2.34-original/ns-2.34/QOAS/qoas-server.h ns-allinone-2.34/ns-2.34/QOAS/qoas-server.h
+--- ns-allinone-2.34-original/ns-2.34/QOAS/qoas-server.h	1970-01-01 01:00:00.000000000 +0100
++++ ns-allinone-2.34/ns-2.34/QOAS/qoas-server.h	2011-02-18 15:50:24.000000000 +0000
+@@ -0,0 +1,43 @@
++#include "timer-handler.h"
++#include "packet.h"
++#include "app.h"
++#include "udp-mm.h"
++
++class QOASServer;
++
++// Sender uses this timer to schedule next app data packet transmission time
++class SendTimer : public TimerHandler {
++ public:
++	SendTimer(QOASServer* t) : TimerHandler(), t_(t) {}
++	inline virtual void expire(Event*);
++ protected:
++	QOASServer* t_;
++};
++
++// Mulitmedia Application Class Definition
++class QOASServer : public Application {
++ public:
++	QOASServer();
++	void send_pkt();  // called by SendTimer:expire (Sender)
++ protected:
++	int command(int argc, const char*const* argv);
++	void start();       // Start server (Sender)
++	void stop();        // Stop server (Sender)
++ private:
++	void init();
++	inline double next_snd_time();                          // (Sender)
++	virtual void recv_msg(int nbytes, const char *msg = 0); // (Sender/Receiver)
++	void set_rate(const hdr_mm *mh_buf);                   // (Sender)
++
++	double rate[5];        // Transmission rates
++	double interval_;      // Application data packet transmission interval
++	int pktsize_;          // Application data packet size
++	int random_;           // If 1 add randomness to the interval
++	int running_;          // If 1 application is running
++	int seq_;              // Application data packet sequence number
++	int rate_;            // Current rate
++	SendTimer snd_timer_;  // SendTimer
++};
++
++
++
+diff -Naur ns-allinone-2.34-original/ns-2.34/QOAS/udp-mm.cc ns-allinone-2.34/ns-2.34/QOAS/udp-mm.cc
+--- ns-allinone-2.34-original/ns-2.34/QOAS/udp-mm.cc	1970-01-01 01:00:00.000000000 +0100
++++ ns-allinone-2.34/ns-2.34/QOAS/udp-mm.cc	2011-02-18 15:50:32.000000000 +0000
+@@ -0,0 +1,128 @@
++#include "udp-mm.h"
++#include "rtp.h"
++#include "random.h"
++#include <string.h>
++
++
++int hdr_mm::offset_;
++
++// Mulitmedia Header Class 
++static class MultimediaHeaderClass : public PacketHeaderClass {
++public:
++	MultimediaHeaderClass() : PacketHeaderClass("PacketHeader/Multimedia",
++						    sizeof(hdr_mm)) {
++		bind_offset(&hdr_mm::offset_);
++	}
++} class_mmhdr;
++
++
++// UdpMmAgent OTcl linkage class
++static class UdpMmAgentClass : public TclClass {
++public:
++	UdpMmAgentClass() : TclClass("Agent/UDP/UDPmm") {}
++	TclObject* create(int, const char*const*) {
++		return (new UdpMmAgent());
++	}
++} class_udpmm_agent;
++
++
++// Constructor (with no arg)
++UdpMmAgent::UdpMmAgent() : UdpAgent()
++{
++	support_mm_ = 0;
++	asm_info.seq = -1;
++}
++
++UdpMmAgent::UdpMmAgent(packet_t type) : UdpAgent(type)
++{
++	support_mm_ = 0;
++	asm_info.seq = -1;
++}
++
++
++// Add Support of Multimedia Application to UdpAgent::sendmsg
++void UdpMmAgent::sendmsg(int nbytes, const char* flags)
++{
++	Packet *p;
++	int n, remain;
++
++ 
++	if (size_) {
++		n = (nbytes/size_ + (nbytes%size_ ? 1 : 0));
++		remain = nbytes%size_;
++	}
++	else
++		printf("Error: UDPmm size = 0\n");
++
++	if (nbytes == -1) {
++		printf("Error:  sendmsg() for UDPmm should not be -1\n");
++		return;
++	}
++	double local_time =Scheduler::instance().clock();
++	while (n-- > 0) {
++		p = allocpkt();
++		if(n==0 && remain>0) hdr_cmn::access(p)->size() = remain;
++		else hdr_cmn::access(p)->size() = size_;
++		hdr_rtp* rh = hdr_rtp::access(p);
++		rh->flags() = 0;
++		rh->seqno() = ++seqno_;
++		hdr_cmn::access(p)->timestamp() = 
++		    (u_int32_t)(SAMPLERATE*local_time);
++		// to eliminate recv to use MM fields for non MM packets
++		hdr_mm* mh = hdr_mm::access(p);
++		mh->ack = 0;
++		mh->seq = 0;
++		mh->nbytes = 0;
++		mh->time = 0;
++		mh->scale = 0;
++		// mm udp packets are distinguished by setting the ip
++		// priority bit to 15 (Max Priority).
++		if(support_mm_) {
++			hdr_ip* ih = hdr_ip::access(p);
++			ih->prio_ = 15;
++			if(flags) // MM Seq Num is passed as flags
++				memcpy(mh, flags, sizeof(hdr_mm));
++		}
++		// add "beginning of talkspurt" labels (tcl/ex/test-rcvr.tcl)
++		if (flags && (0 ==strcmp(flags, "NEW_BURST")))
++			rh->flags() |= RTP_M;
++		target_->recv(p);
++	}
++	idle();
++}
++
++
++// Support Packet Re-Assembly and Multimedia Application
++void UdpMmAgent::recv(Packet* p, Handler*)
++{
++	hdr_ip* ih = hdr_ip::access(p);
++	int bytes_to_deliver = hdr_cmn::access(p)->size();
++
++	// if it is a MM packet (data or ack)
++	if(ih->prio_ == 15) { 
++		if(app_) {  // if MM Application exists
++			// re-assemble MM Application packet if segmented
++			hdr_mm* mh = hdr_mm::access(p);
++			if(mh->seq == asm_info.seq)
++				asm_info.rbytes += hdr_cmn::access(p)->size();
++			else {
++				asm_info.seq = mh->seq;
++				asm_info.tbytes = mh->nbytes;
++				asm_info.rbytes = hdr_cmn::access(p)->size();
++			}
++			// if fully reassembled, pass the packet to application
++			if(asm_info.tbytes == asm_info.rbytes) {
++				hdr_mm mh_buf;
++				memcpy(&mh_buf, mh, sizeof(hdr_mm));
++				app_->recv_msg(mh_buf.nbytes, (char*) &mh_buf);
++			}
++		}
++		Packet::free(p);
++	}
++	// if it is a normal data packet (not MM data or ack packet)
++	else { 
++		if (app_) app_->recv(bytes_to_deliver);
++		Packet::free(p);
++	}
++}
++
+diff -Naur ns-allinone-2.34-original/ns-2.34/QOAS/udp-mm.h ns-allinone-2.34/ns-2.34/QOAS/udp-mm.h
+--- ns-allinone-2.34-original/ns-2.34/QOAS/udp-mm.h	1970-01-01 01:00:00.000000000 +0100
++++ ns-allinone-2.34/ns-2.34/QOAS/udp-mm.h	2011-02-18 15:50:48.000000000 +0000
+@@ -0,0 +1,47 @@
++#ifndef ns_udp_mm_h
++#define ns_udp_mm_h
++
++#include "udp.h"
++#include "ip.h"
++
++// Multimedia Header Structure
++struct hdr_mm {
++	int ack;     // is it ack packet?
++	int seq;     // mm sequence number
++	int nbytes;  // bytes for mm pkt
++	double time; // current time
++	int scale;   // scale (0-4) associated with data rates
++
++	// Packet header access functions
++        static int offset_;
++        inline static int& offset() { return offset_; }
++        inline static hdr_mm* access(const Packet* p) {
++                return (hdr_mm*) p->access(offset_);
++        }
++};
++
++
++// Used for Re-assemble segmented (by UDP) MM packet
++struct asm_mm { 
++	int seq;     // mm sequence number
++	int rbytes;  // currently received bytes
++	int tbytes;  // total bytes to receive for MM packet
++};
++
++
++// UdpMmAgent Class definition
++class UdpMmAgent : public UdpAgent {
++public:
++	UdpMmAgent();
++	UdpMmAgent(packet_t);
++	virtual int supportMM() { return 1; }
++	virtual void enableMM() { support_mm_ = 1; }
++	virtual void sendmsg(int nbytes, const char *flags = 0);
++	void recv(Packet*, Handler*);
++protected:
++	int support_mm_; // set to 1 if above is MmApp
++private:
++	asm_mm asm_info; // packet re-assembly information
++};
++
++#endif
+diff -Naur ns-allinone-2.34-original/ns-2.34/tcl/lib/ns-default.tcl ns-allinone-2.34/ns-2.34/tcl/lib/ns-default.tcl
+--- ns-allinone-2.34-original/ns-2.34/tcl/lib/ns-default.tcl	2009-06-14 18:35:41.000000000 +0100
++++ ns-allinone-2.34/ns-2.34/tcl/lib/ns-default.tcl	2011-02-18 14:05:18.000000000 +0000
+@@ -1463,3 +1463,20 @@
+ Agent/PBC set periodicBroadcastVariance 0.1
+ Agent/PBC set modulationScheme 0
+ 
++Application/QOASServer set rate0_ 0.3mb
++Application/QOASServer set rate1_ 0.6mb
++Application/QOASServer set rate2_ 0.9mb
++Application/QOASServer set rate3_ 1.2mb
++Application/QOASServer set rate4_ 1.5mb
++
++Application/QOASServer set pktsize_ 1000
++Application/QOASServer set random_ false
++
++Application/QOASClient set rate0_ 0.3mb
++Application/QOASClient set rate1_ 0.6mb
++Application/QOASClient set rate2_ 0.9mb
++Application/QOASClient set rate3_ 1.2mb
++Application/QOASClient set rate4_ 1.5mb
++
++Application/QOASClient set pktsize_ 1000
++Application/QOASClient set random_ false
+diff -Naur ns-allinone-2.34-original/ns-2.34/tcl/lib/ns-packet.tcl ns-allinone-2.34/ns-2.34/tcl/lib/ns-packet.tcl
+--- ns-allinone-2.34-original/ns-2.34/tcl/lib/ns-packet.tcl	2009-06-14 18:35:41.000000000 +0100
++++ ns-allinone-2.34/ns-2.34/tcl/lib/ns-packet.tcl	2011-02-17 22:41:08.000000000 +0000
+@@ -173,6 +173,7 @@
+ 	Encap 	# common/encap.cc
+         IPinIP 	# IP encapsulation 
+ 	HDLC 	# High Level Data Link Control
++	Multimedia # protocol for QOAS
+ } {
+ 	add-packet-header $prot
+ }
+diff -Naur ns-allinone-2.34-original/otcl-1.13/configure ns-allinone-2.34/otcl-1.13/configure
+--- ns-allinone-2.34-original/otcl-1.13/configure	2009-06-14 18:35:49.000000000 +0100
++++ ns-allinone-2.34/otcl-1.13/configure	2011-02-20 18:30:20.478266529 +0000
+@@ -6301,7 +6301,7 @@
+         ;;
+     Linux*)
+         SHLIB_CFLAGS="-fpic"
+-        SHLIB_LD="ld -shared"
++        SHLIB_LD="gcc -shared"
+         SHLIB_SUFFIX=".so"
+         DL_LIBS="-ldl"
+         SHLD_FLAGS=""
+

@@ -1,0 +1,15 @@
+digraph G 
+{
+    rankdir=LR;
+    node [shape = doublecircle]; Node_0 Node_1 Node_2 Node_3;
+    /*node [shape = box]; CBR_SENDER CBR_SINK QOAS_SENDER QOAS_SINK;
+
+    CBR_SENDER -> Node_0;
+    QOAS_SENDER -> Node_0;
+
+    Node_3 -> CBR_SINK;
+    Node_3 -> QOAS_SINK;
+    */
+
+    Node_0 -> Node_1 -> Node_2 -> Node_3 [color=white];
+}

@@ -1,0 +1,64 @@
+diff -uNr --exclude='*.o' ns-allinone-2.34-original/ns-2.34/QOAS/qoas-client.cc ns-allinone-2.34/ns-2.34/QOAS/qoas-client.cc
+--- ns-allinone-2.34-original/ns-2.34/QOAS/qoas-client.cc	2011-04-10 21:37:46.709838984 +0100
++++ ns-allinone-2.34/ns-2.34/QOAS/qoas-client.cc	2011-03-23 21:18:59.220882083 +0000
+@@ -146,9 +146,10 @@
+       if(p_monitor.last_rate > 4) p_monitor.last_rate = 4;
+     }
+     
+-    printf("ADJUST SCALE: EXPECTED_THR: %.2lf RECEIVED_THR: %.2lf PSNR: %.2lf QUALITY METRIC: %.2lf DECIDED RATE: %.2lfMbps \n", expected_thr, received_thr, PSNR, quality_metric, rate[p_monitor.last_rate]/1000000);
++    printf("ADJUST SCALE(@%lf): EXPECTED_THR: %.2lf RECEIVED_THR: %.2lf PSNR: %.2lf QUALITY METRIC: %.2lf DECIDED RATE: %.2lfMbps \n", Scheduler::instance().clock(), expected_thr, received_thr, PSNR, quality_metric, rate[p_monitor.last_rate]/1000000);
++    fflush(NULL);
+   }
+-  
++
+   p_monitor.recv_pkts = 0;
+   p_monitor.lost_pkts = 0;
+ }
+diff -uNr --exclude='*.o' ns-allinone-2.34-original/ns-2.34/QOAS/qoas-server.cc ns-allinone-2.34/ns-2.34/QOAS/qoas-server.cc
+--- ns-allinone-2.34-original/ns-2.34/QOAS/qoas-server.cc	2011-04-10 21:37:46.709838984 +0100
++++ ns-allinone-2.34/ns-2.34/QOAS/qoas-server.cc	2011-04-14 11:14:18.806238229 +0100
+@@ -1,6 +1,6 @@
+ #include "random.h"
+ #include "qoas-server.h"
+-
++#include "stdio.h"
+ 
+ // QOAS OTcl linkage class
+ static class QOASServerClass : public TclClass {
+@@ -131,4 +131,4 @@
+ void QOASServer::set_rate(const hdr_mm *mh_buf)
+ { 
+   rate_ = mh_buf->scale;
+-}
+\ No newline at end of file
++}
+diff -uNr --exclude='*.o' ns-allinone-2.34-original/ns-2.34/QOAS/udp-mm.cc ns-allinone-2.34/ns-2.34/QOAS/udp-mm.cc
+--- ns-allinone-2.34-original/ns-2.34/QOAS/udp-mm.cc	2011-04-10 21:37:46.709838984 +0100
++++ ns-allinone-2.34/ns-2.34/QOAS/udp-mm.cc	2011-04-14 11:22:45.961894836 +0100
+@@ -2,7 +2,7 @@
+ #include "rtp.h"
+ #include "random.h"
+ #include <string.h>
+-
++#include <stdio.h>
+ 
+ int hdr_mm::offset_;
+ 
+@@ -111,11 +111,14 @@
+ 				asm_info.rbytes = hdr_cmn::access(p)->size();
+ 			}
+ 			// if fully reassembled, pass the packet to application
+-			if(asm_info.tbytes == asm_info.rbytes) {
++			if(asm_info.tbytes <= asm_info.rbytes) {
+ 				hdr_mm mh_buf;
+ 				memcpy(&mh_buf, mh, sizeof(hdr_mm));
+ 				app_->recv_msg(mh_buf.nbytes, (char*) &mh_buf);
+-			}
++			}else{
++        printf("Can't Receive(t:%d,r:%d).\n",asm_info.tbytes, asm_info.rbytes);
++        fflush(NULL);
++      }
+ 		}
+ 		Packet::free(p);
+ 	}
+Binary files ns-allinone-2.34-original/ns-2.34/QOAS/.udp-mm.cc.swp and ns-allinone-2.34/ns-2.34/QOAS/.udp-mm.cc.swp differ
